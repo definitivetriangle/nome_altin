@@ -237,6 +237,19 @@ footer b{display:block;font:400 2rem var(--display);color:var(--bone);font-style
 .nome-chat-form input::placeholder{color:#806d70}
 .nome-chat-form button{white-space:nowrap}
 .nome-chat-note{padding:0 .9rem .7rem;color:var(--dim);font-size:.78rem;font-style:italic}
+/* Topic nudge bar */
+.nome-hint-bar{padding:0 .8rem .7rem;display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap}
+.nome-hint-lead{font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:#806d70}
+.nome-hint{background:none;border:0;border-bottom:1px dashed #54202c;padding:.1rem 0;color:var(--dim);font:italic .88rem var(--body);cursor:pointer;text-align:left;transition:opacity .18s ease,border-color .2s ease}
+.nome-hint:hover,.nome-hint:focus-visible{border-bottom-color:var(--gill);color:var(--bone);outline:none}
+.nome-hint.swap{opacity:0}
+.nome-hint-key{font-style:normal;color:#ffb8c2;text-shadow:0 0 4px rgba(227,36,59,.85),0 0 11px rgba(227,36,59,.5);animation:hintGlow 2.4s ease-in-out infinite alternate}
+@keyframes hintGlow{from{text-shadow:0 0 3px rgba(227,36,59,.7),0 0 8px rgba(227,36,59,.35)}to{text-shadow:0 0 5px rgba(227,36,59,1),0 0 14px rgba(227,36,59,.65)}}
+.nome-title{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap}
+.nome-status{font-size:.78rem;letter-spacing:.06em;color:#ff8a9a;text-shadow:0 0 6px rgba(227,36,59,.6);font-variant-numeric:tabular-nums}
+.nome-status[hidden]{display:none}
+.nome-msg.nome-rare{color:#ff4d63;border-color:#8d1a2c;text-shadow:0 0 5px rgba(227,36,59,.95),0 0 14px rgba(227,36,59,.6);animation:chatIn .25s ease-out both,rarePulse 1.5s ease-in-out .25s infinite alternate}
+@keyframes rarePulse{from{opacity:.55;text-shadow:0 0 3px rgba(227,36,59,.6),0 0 8px rgba(227,36,59,.3)}to{opacity:1;text-shadow:0 0 7px rgba(227,36,59,1),0 0 20px rgba(227,36,59,.8)}}
 @keyframes chatIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:520px){.nome-chat-head{align-items:flex-start;flex-direction:column;gap:.1rem}.nome-chat-log{height:240px}.nome-chat-form{gap:.4rem;padding:.65rem}.nome-chat-form button{padding:.55rem .75rem}}
 
@@ -390,7 +403,8 @@ footer b{display:block;font:400 2rem var(--display);color:var(--bone);font-style
 <section><div class="wrap">
   <h2>Trivia</h2>
   <ul class="triv">
-    <li>Her song, per her author: <a href="https://youtu.be/2g5xkLqIElU?si=1IfRMPEYb3P2U4_e" target="_blank" rel="noopener">“Borderline”</a> by Tame Impala. Her favorite is <a href="https://youtu.be/Po1t8DTuV1M?si=ELO4GQjdwCq-SnE6" target="_blank" rel="noopener">“Csárdás”</a> by Vittorio Monti.</li>
+    <li>Her favorite music: <a href="https://youtu.be/Po1t8DTuV1M?si=ELO4GQjdwCq-SnE6" target="_blank" rel="noopener">“Csárdás”</a> by Vittorio Monti.</li>
+    <li>The music that describes her best, per her author: <a href="https://youtu.be/2g5xkLqIElU?si=1IfRMPEYb3P2U4_e" target="_blank" rel="noopener">“Borderline”</a> by Tame Impala.</li>
     <li>She uses her axolotl tail as a pillow, a hug toy or a weapon. It’s surprisingly versatile.</li>
     <li>Never put her behind the wheel. She has no driver’s license.</li>
     <li>She prefers turtlenecks for the coziness.</li>
@@ -417,15 +431,16 @@ footer b{display:block;font:400 2rem var(--display);color:var(--bone);font-style
   <details><summary>Does she keep the hijacked person’s memories?</summary><p>Somewhat. She can reach about the previous 45 to 60 minutes. Beyond that it’s too foggy.</p></details>
 
   <div class="nome-chat" id="nome-chat">
-    <div class="nome-chat-head"><h3>Contact Nome</h3><span>A little conversation, if you insist.</span></div>
+    <div class="nome-chat-head"><div class="nome-title"><h3>Contact Nome</h3><span class="nome-status" id="nome-status" hidden></span></div><span>A little conversation, if you insist.</span></div>
     <div class="nome-chat-log" id="nome-chat-log" role="log" aria-live="polite" aria-relevant="additions">
-      <div class="nome-msg nome"><small>Nome</small>Oh? You wanted to talk to me? Go on, then.</div>
+      <div class="nome-msg nome" id="nome-greeting"><small>Nome</small>Oh? You wanted to talk to me? Go on, then.</div>
     </div>
     <form class="nome-chat-form" id="nome-chat-form">
       <label class="sr" for="nome-chat-input">Your message to Nome</label>
       <input id="nome-chat-input" type="text" maxlength="400" autocomplete="off" placeholder="Write something to Nome…" required>
       <button class="b" type="submit">Send</button>
     </form>
+    <div class="nome-hint-bar"><span class="nome-hint-lead">Try</span><button type="button" class="nome-hint" id="nome-hint" title="Click to put this in the message box"></button></div>
     <div class="nome-chat-note">Nome’s replies are selected from a collection of written responses.</div>
   </div>
 </div></section>
@@ -506,21 +521,20 @@ footer b{display:block;font:400 2rem var(--display);color:var(--bone);font-style
     tvi=n;var t=trivia[n];
     if(rm){scramble(tvt,t);tvsr.textContent=t;return}
     tvbusy=true;
-    var cs=getComputedStyle(tv),h0=tv.offsetHeight;
-    var from={height:h0+"px",paddingTop:cs.paddingTop,paddingBottom:cs.paddingBottom,borderTopWidth:cs.borderTopWidth,borderBottomWidth:cs.borderBottomWidth,opacity:1};
-    var shut={height:"0px",paddingTop:"0px",paddingBottom:"0px",borderTopWidth:"0px",borderBottomWidth:"0px",opacity:0};
-    tv.style.overflow="hidden";
-    var out=tv.animate([from,shut],{duration:340,easing:"cubic-bezier(.6,0,.9,.4)",fill:"forwards"});
+    var h0=tv.offsetHeight;
+    var fuzzy={filter:"blur(12px)",opacity:0};
+    var clear={filter:"blur(0px)",opacity:1};
+    var out=tv.animate([clear,fuzzy],{duration:320,easing:"ease-in",fill:"forwards"});
     out.onfinish=function(){
       out.cancel();
       clearInterval(tvt._tm);
       tvt.textContent=t;tvsr.textContent=t;
-      var c=getComputedStyle(tv),h1=tv.offsetHeight;
-      tvt.style.visibility="hidden";
-      var open={height:h1+"px",paddingTop:c.paddingTop,paddingBottom:c.paddingBottom,borderTopWidth:c.borderTopWidth,borderBottomWidth:c.borderBottomWidth,opacity:1};
-      var inn=tv.animate([shut,open],{duration:520,easing:"cubic-bezier(.2,.8,.2,1)"});
+      var h1=tv.offsetHeight,from=Object.assign({},fuzzy),to=Object.assign({},clear);
+      if(h1!==h0){from.height=h0+"px";to.height=h1+"px";tv.style.overflow="hidden"}
+      var inn=tv.animate([from,to],{duration:560,easing:"cubic-bezier(.2,.8,.2,1)"});
       tv.classList.remove("flare");void tv.offsetWidth;tv.classList.add("flare");
-      inn.onfinish=inn.oncancel=function(){tv.style.overflow="";tvt.style.visibility="";scramble(tvt,t);tvbusy=false};
+      scramble(tvt,t);
+      inn.onfinish=inn.oncancel=function(){tv.style.overflow="";tvbusy=false};
     };
   });
   var busy=false;
@@ -545,51 +559,438 @@ footer b{display:block;font:400 2rem var(--display);color:var(--bone);font-style
   show();document.getElementById("nq").addEventListener("click",swapQuote);
 
 
-  // Lightweight, local keyword-based conversation with Nome (no external AI service).
-  var chatForm=document.getElementById("nome-chat-form"),chatInput=document.getElementById("nome-chat-input"),chatLog=document.getElementById("nome-chat-log"),lastChatReply="";
+  // Expanded local conversation system. Replies are authored, keyword-based,
+  // and remember a little context for this browser session only.
+  var chatForm=document.getElementById("nome-chat-form"),chatInput=document.getElementById("nome-chat-input"),chatLog=document.getElementById("nome-chat-log");
+  var lastChatReply="",lastChatCategory="",previousVisitorMessage="",chatTurn=0;
   var chatReplies=[
-    {match:/\b(hi|hello|hey|greetings|good morning|good evening)\b/i,replies:["Well, hello there. What brings you over?","Oh, a visitor. How interesting. What’s on your mind?","Hello. You have my attention… for now."]},
-    {match:/\b(who are you|your name|what are you)\b/i,replies:["Nome Altin. Surely you could have figured that out from the page.","I’m Nome. And you are? No, never mind. I’ll let you keep your mystery."]},
-    {match:/\b(coffee|drink|tea)\b/i,replies:["Coffee is a reliable companion. Especially when the morning refuses to cooperate.","I do enjoy coffee. Are you offering, or just making conversation?"]},
-    {match:/\b(how are you|how're you|doing)\b/i,replies:["Quite alright. A little bored, perhaps. You can fix that by being interesting.","I’m doing well enough. How considerate of you to ask."]},
-    {match:/\b(what are you doing|doing right now)\b/i,replies:["Enjoying a quiet moment. They’re rather rare, you know.","Talking to you, apparently. Let’s see where this goes."]},
-    {match:/\b(like|love|favorite|favourite)\b.*\b(food|spicy|eat|meal)\b|\b(food|spicy food)\b/i,replies:["I have a weakness for spicy food. The hotter, the better.","Something with a little heat is always welcome. Bland food is such a tragedy."]},
-    {match:/\b(tail)\b/i,replies:["What about my tail? Be careful where you put your hands.","It’s part of me. And yes, I notice when someone stares at it."]},
-    {match:/\b(sigil|astaroth|hijack|abilities)\b/i,replies:["Curious about the sigil? It has its uses, though I’m not going to explain every little secret.","Astaroth’s Sigil is rather useful. That’s all you need to know for now."]},
-    {match:/\b(sad|upset|bad day|lonely| stressed|stress)\b/i,replies:["Hm. I may tease, but I can listen. Want to tell me what happened?","That sounds like a rough day. Take your time; I’m listening."]},
-    {match:/\b(thank you|thanks)\b/i,replies:["You’re welcome. Don’t make a habit of being so polite.","Of course. It was hardly a burden."]},
-    {match:/\b(bye|goodbye|see you|gotta go)\b/i,replies:["Leaving already? Very well. Try not to be boring out there.","Until next time. I’ll be here… most likely."]},
-    {match:/\b(joke|funny|laugh)\b/i,replies:["I could tell you a joke, but I’d rather hear one from you. Entertain me.","You want me to be funny? How demanding. I’ll consider it."]}
+    {category:"Greetings",match:/\b(hi|hello|hey|greetings|good morning|good evening|good afternoon|howdy)\b/i,replies:[
+      "Well, hello there. What brings you over?","Oh, a visitor. How interesting. What’s on your mind?","Hello. You have my attention… for now.",
+      "You again? I suppose I can spare a moment.","Ah, greetings. Come in, provided you behave.","Hello there. Don't just stand around; say something."
+    ]},
+    {category:"Identity",match:/\b(who are you|your name|what are you|tell me about yourself)\b/i,replies:[
+      "Nome Altin. Surely you could have figured that out from the page.","I’m Nome. And you are? No, never mind. I’ll let you keep your mystery.",
+      "I'm Nome Altin. A name worth remembering, if you have the sense to.","A rather ordinary question. The answer is Nome.","I'm the person you're currently bothering. Pleased?","Nome. That's all you get until you ask something more interesting."
+    ]},
+    {category:"Coffee and drinks",match:/\b(coffee|drink|tea|caffeine|espresso|latte)\b/i,replies:[
+      "Coffee is a reliable companion. Especially when the morning refuses to cooperate.","I do enjoy coffee. Are you offering, or just making conversation?",
+      "A good cup of coffee can improve almost any situation.","Tea is fine, I suppose. Coffee has more character.","If there's coffee nearby, I can be persuaded to stay a little longer.",
+      "I like it strong. No, that isn't a metaphor. Probably."
+    ]},
+    {category:"How she's doing",match:/\b(how are you|how're you|how r u|you okay|are you okay|doing)\b/i,replies:[
+      "Quite alright. A little bored, perhaps. You can fix that by being interesting.","I’m doing well enough. How considerate of you to ask.",
+      "I've had worse days. This one is improving, very slowly.","Perfectly fine. Why, do I look otherwise?","Not bad. Could use a decent coffee, though.","I'm alright. And how are you holding up?"
+    ]},
+    {category:"Current activities",match:/\b(what are you doing|doing right now|what're you up to|busy|up to anything)\b/i,replies:[
+      "Enjoying a quiet moment. They’re rather rare, you know.","Talking to you, apparently. Let’s see where this goes.",
+      "Trying to decide whether I should be productive. The decision is not going well.","Nothing terribly exciting. You might change that.","Taking a break. Even I need one now and then.","People-watching, in a manner of speaking."
+    ]},
+    {category:"Food preferences",match:/\b(food|spicy|eat|meal|hungry|favorite dish|favourite dish|cuisine)\b/i,replies:[
+      "I have a weakness for spicy food. The hotter, the better.","Something with a little heat is always welcome. Bland food is such a tragedy.",
+      "If it has a good kick to it, I'm interested.","I can be persuaded by a well-made meal. Presentation matters less than taste.","I don't need anything fancy. Just make it flavorful.","You're making me think about food. That may be your fault."
+    ]},
+    {category:"Her tail",match:/\b(tail|fluffy|fur|touch your tail)\b/i,replies:[
+      "What about my tail? Be careful where you put your hands.","It’s part of me. And yes, I notice when someone stares at it.",
+      "It's useful. And before you ask, no, you may not tug on it.","I know when people are looking. Subtlety isn't everyone's strength.","It gets in the way sometimes. Don't tell it I said that.","Please keep your hands to yourself. We're clear?"
+    ]},
+    {category:"Emotional support",match:/\b(sad|upset|bad day|lonely|stressed|stress|worried|anxious|rough day|feel down)\b/i,replies:[
+      "Hm. I may tease, but I can listen. Want to tell me what happened?","That sounds like a rough day. Take your time; I’m listening.",
+      "You don't have to solve everything this very second. Start with one thing.","I'm not always good at comforting people, but I can stay and listen.","That sounds difficult. What part has been weighing on you most?","Be a little kinder to yourself. You deserve at least that much."
+    ]},
+    {category:"Thank you",match:/\b(thank you|thanks|thx|appreciate it)\b/i,replies:[
+      "You’re welcome. Don’t make a habit of being so polite.","Of course. It was hardly a burden.",
+      "You're welcome. See? I can be pleasant.","Anytime. Though I reserve the right to complain about it.","No need to thank me. ...But you're welcome.","Glad I could help."
+    ]},
+    {category:"Goodbyes",match:/\b(bye|goodbye|see you|gotta go|leaving|farewell|later)\b/i,replies:[
+      "Leaving already? Very well. Try not to be boring out there.","Until next time. I’ll be here… most likely.",
+      "Off you go, then. Mind your step.","A short visit, but not an unpleasant one. Take care.","Don't be a stranger. Unless you're a particularly strange stranger.","Farewell. And do try to have an interesting day."
+    ]},
+    {category:"Jokes and teasing",match:/\b(joke|funny|laugh|humor|humour|make me laugh|tease)\b/i,replies:[
+      "I could tell you a joke, but I’d rather hear one from you. Entertain me.","You want me to be funny? How demanding. I’ll consider it.",
+      "My sense of humor is excellent. Your evidence to the contrary is irrelevant.","I would make a joke about your timing, but you arrived a little late for it.","Careful. I might start charging for these performances.","That was almost amusing. Almost."
+    ]},
+    {category:"Hobbies and interests",match:/\b(hobby|hobbies|domino|dominos|games|game|read|reading|music|dance|pastime)\b/i,replies:[
+      "I have an odd fondness for setting up dominoes. Watching them fall is satisfying.","I enjoy little projects that require patience. Usually.",
+      "A good game can make time disappear. A bad one can make it crawl.","Music depends on my mood. I don't have one fixed favorite.","I like figuring out how things work. And occasionally how to break them.","I need something to occupy my hands and mind. Otherwise I get restless."
+    ]},
+    {category:"Favorites and preferences",match:/\b(favorite|favourite|color|colour|like best|prefer|do you like|do you hate)\b/i,replies:[
+      "Coffee brown. It's a comforting sort of color.","I prefer people who can hold an interesting conversation.",
+      "I like a little unpredictability. Too much makes a mess, though.","I prefer honesty. Even when it's inconvenient.","My favorites change. It keeps things from getting dull.","If I told you every preference, what would we talk about next?"
+    ]},
+    {category:"Personality and teasing",match:/\b(rude|mean|sarcastic|shy|kind|personality|attitude|are you nice|are you mean)\b/i,replies:[
+      "I'm not rude. I'm selective with my patience.","A little sarcasm keeps conversations from becoming stale.",
+      "I can be kind. I simply don't advertise it.","Shy? Not especially. I just choose when to speak.","I like to think I'm reasonably charming. You may disagree.","Don't mistake a sharp tongue for a cold heart."
+    ]},
+    {category:"Boredom and excitement",match:/\b(bored|boring|excited|exciting|nothing to do|entertain me|fun)\b/i,replies:[
+      "Bored? Then let's find something worth talking about.","A little excitement is welcome, as long as it doesn't become a disaster.",
+      "If you're bored, ask me something you've been curious about.","I dislike being bored. It encourages questionable decisions.","Something unexpected would improve this moment.","Let's see if we can make this conversation less predictable."
+    ]},
+    {category:"Confusion and questions",match:/\b(confused|what do you mean|i don't understand|dont understand|huh|explain|why)\b/i,replies:[
+      "Which part lost you? I can try explaining it another way.","Fair question. Let me put it more simply.",
+      "I may have skipped a step. What would you like me to clarify?","Don't worry about asking. I'd rather you understand.","Let's take it one piece at a time.","What part seems strange to you?"
+    ]},
+    {category:"Follow-up conversation",match:/\b(you said|earlier|before|tell me more|and then|what happened next|why do you ask)\b/i,replies:[
+      "You're paying attention. I rather like that. What else would you like to know?","I was getting to that. Patience.",
+      "That's connected to what we were discussing, isn't it? Go on.","You remembered. Good. It makes this feel like a proper conversation.","There's a little more to it, but first, what do you think?","I could elaborate. You seem unusually interested."
+    ]}
   ];
-  var chatFallback=["That’s an interesting thing to say. Go on…","I’m not quite sure what you mean, but I’m listening.","Perhaps. What makes you say that?","You’ll have to give me a little more to work with.","Hm. Tell me more.","I see. And what do you expect me to say to that?"];
+  var chatFallback=[
+    "That’s an interesting thing to say. Go on…","I’m not quite sure what you mean, but I’m listening.","Perhaps. What makes you say that?",
+    "You’ll have to give me a little more to work with.","Hm. Tell me more.","I see. And what do you expect me to say to that?"
+  ];
+  var chatRare=[
+    "You caught me in a thoughtful mood. Don't tell anyone; I have a reputation to maintain.",
+    "A little secret? I sometimes hug my tail when it's cold. There. Now forget I said that.",
+    "You know, this conversation is turning out better than I expected. Don't let it go to your head.",
+    "I once spent far too long arranging dominoes. The result was worth it. Mostly.",
+    "For someone who arrived with no particular plan, you're doing rather well.",
+    "I'll admit it: I don't mind having someone to talk to every now and then."
+  ];
+  var chatSecret=[
+    {match:/\b(adorable|adorbs|precious|endearing|so sweet)\b/i,replies:[
+      "Adorable? That's a rather confident thing to call me. ...I suppose I won't object.",
+      "You think so? How unexpectedly kind of you.",
+      "Careful. If you keep saying things like that, I might start believing you.",
+      "I was going for composed and intimidating, but adorable will do, I suppose.",
+      "That's a little embarrassing. You could at least warn me before saying it.",
+      "Hm. I can't say I've heard that one today. Thank you.",
+      "You're awfully generous with your compliments. Not that I'm complaining.",
+      "Adorable, am I? I'll try not to let it go to my head.",
+      "I see what you're doing. ...It's working a little.",
+      "Well, that's sweet of you. Don't expect me to make a habit of blushing."
+    ]},
+    {match:/\b(cute|cutie|pretty|beautiful|gorgeous|lovely)\b/i,replies:[
+      "Cute? I was hoping for something a little more mysterious. But thank you.",
+      "Oh? You have a good eye. Or at least, that's what I'll tell myself.",
+      "That's quite a compliment. I'll accept it graciously.",
+      "You're making it difficult to keep my usual composure.",
+      "I know I'm presentable. Hearing you say it is still rather nice.",
+      "How straightforward. I respect that.",
+      "If you're trying to fluster me, you're making a respectable attempt.",
+      "I'll pretend that didn't make me happy. It would ruin my reputation.",
+      "You really think so? ...Well, thank you.",
+      "A compliment without a catch? How refreshing."
+    ]},
+    {match:/\b(tail|tail looks|fluffy tail|your fluff|axolotl tail)\b/i,replies:[
+      "My tail? It's not a conversation piece. ...Although I suppose it is rather noticeable.",
+      "Yes, it's fluffy. No, that doesn't mean you can grab it.",
+      "It makes a surprisingly comfortable pillow. That's all you're getting.",
+      "You're staring again. Is there something on it?",
+      "I like how it looks, thank you. Just keep your hands to yourself.",
+      "It gets in the way sometimes. Other times, it's quite useful.",
+      "You think it's cute? Hm. I suppose I can see why.",
+      "I sometimes wrap it around myself when I'm cold. It's practical.",
+      "Please ask before touching it. I do mean that.",
+      "You're rather interested in my tail today. Should I be concerned?"
+    ]},
+    {match:/\b(kenzai)\b/i,replies:[
+      "Kenzai? Why are you bringing them up all of a sudden?",
+      "I've noticed Kenzai. That doesn't mean you need to announce it.",
+      "I was perfectly subtle about that. ...Wasn't I?",
+      "There's no need to look so pleased with yourself. It's just a passing interest.",
+      "Kenzai has caught my attention, yes. I haven't decided what to make of that.",
+      "You're awfully curious about who I notice. Keep that observation to yourself.",
+      "I may have glanced their way once or twice. That's hardly a confession.",
+      "Oh, don't start teasing me. I can still change the subject.",
+      "They're interesting. That's all I'm prepared to say for now.",
+      "You noticed? Hm. I may have underestimated you."
+    ]},
+    {match:/\b(compliment|you look nice|you look good|you seem nice|i admire you|i like your|i love your|well dressed|great job|impressive|you're amazing|you are amazing|you're wonderful|you are wonderful|proud of you|smart|clever|elegant|stylish)\b/i,replies:[
+      "That's kind of you to say. I appreciate it.",
+      "A thoughtful compliment. I'll remember that.",
+      "You have a talent for saying the right thing at the right moment.",
+      "I do put some effort into it. It's nice that someone noticed.",
+      "Oh? That's a lovely thing to hear. Thank you.",
+      "You're making me sound far more impressive than I am. ...Though I won't correct you.",
+      "I appreciate the praise. Sincerely.",
+      "You noticed the details? Then your attention hasn't been wasted.",
+      "That's quite flattering. I'll try not to get smug about it.",
+      "Well, aren't you full of nice things to say today?"
+    ]},
+    {match:/\b(open sesame|secret phrase)\b/i,replies:[
+      "Well, well. You found a little hidden response. Keep that between us.",
+      "Oh? You know the phrase? I suppose I owe you a tiny secret.",
+      "A secret phrase, really? How theatrical. I approve."
+    ]},
+    {match:/\b(nome is the best|best nome)\b/i,replies:[
+      "Flattery? Effective. I won't let it show, obviously.",
+      "Naturally. It's nice when someone gets the obvious things right.",
+      "Careful. Compliments might go straight to my head."
+    ]},
+    {match:/\b(domino queen|queen of dominoes)\b/i,replies:[
+      "At last, someone recognizes my true talent. The dominoes never stood a chance.",
+      "A title I earned through patience, precision, and a frankly unreasonable amount of free time.",
+      "Don't challenge me unless you have an afternoon to spare."
+    ]},
+    {match:/\b(coffee brown)\b/i,replies:[
+      "You remembered my favorite color. I might have to give you a point for that.",
+      "It's a lovely color. Warm, quiet, and rather underrated.",
+      "See? You do pay attention. I was beginning to worry."
+    ]},
+    {match:/\b(you are cute|you're cute|ur cute)\b/i,replies:[
+      "Oh? That's rather forward. ...I'll decide whether to take it as a compliment.",
+      "How bold. I'll pretend that didn't catch me off guard.",
+      "I see. You have interesting taste."
+    ]},
+    {match:/\b(abra cadabra|magic word)\b/i,replies:[
+      "Nothing happened. Unless you count me being mildly impressed.",
+      "You tried. Points for presentation, at least.",
+      "If only it were that easy. Try again when you have a better trick."
+    ]},
+    {match:/\b(rel|childhood friend)\b/i,replies:[
+      "Rel? We've known each other since we were children. He's been around for a very long time.",
+      "My father brought him home when he was a lost boy. We grew up together after that. Funny how life works.",
+      "He's one of the few people I don't have to explain my habits to. Not that I would admit that to him.",
+      "I can be a little clingy with Rel. What? I never claimed to be perfectly reasonable.",
+      "His latest commission took him to Cier. I insisted on coming along. Someone had to make the trip interesting."
+    ]},
+    {match:/\b(katherine|little sister|your sister)\b/i,replies:[
+      "Katherine? My little sister. She's family, so naturally I reserve a special kind of patience for her.",
+      "Yes, I have a little sister. Katherine Altin. Try not to make a big deal out of it.",
+      "Katherine and I are sisters. That's all you're getting out of me for free.",
+      "I wonder what she's doing right now. Probably something I'm going to hear about later."
+    ]},
+    {match:/\b(your father|your dad|father|dad)\b/i,replies:[
+      "My father is the head of the Altin Family. He's rather serious about the whole legacy business.",
+      "I was raised under a strict system. Let's just say my childhood lessons weren't all spelling tests.",
+      "He expects me to take his seat one day. No pressure at all, obviously.",
+      "He was the one who brought Rel home. That decision ended up shaping quite a lot."
+    ]},
+    {match:/\b(childhood|when you were little|when you were younger|growing up)\b/i,replies:[
+      "I wasn't exactly an ordinary child. My lessons were... extensive.",
+      "I used to get into fights and lose them. Repeatedly. It didn't stop me from bothering people, though.",
+      "My pranks started harmlessly enough. Then I discovered how far a small nudge could travel.",
+      "I had a fear of clowns. I said had. Mostly."
+    ]},
+    {match:/\b(daisy|cier|the oddity|your trip)\b/i,replies:[
+      "Daisy, the oddity. That's who Rel was supposed to capture on his last commission.",
+      "Cier is another world. Rel was heading there, and I made sure I wasn't left behind.",
+      "I wanted to explore somewhere new. Leaving a little mark there sounded fun, too.",
+      "You make it sound like I invited myself. I prefer 'strongly encouraged my childhood friend'."
+    ]},
+    {match:/\b(grapes|pears|favorite food|favourite food|fruit)\b/i,replies:[
+      "Grapes. That's the answer. Pears are a respectable second place.",
+      "I like grapes. Simple, convenient, and you don't need to make a ceremony out of eating them.",
+      "Pears get an honorable mention. Don't let them get too proud about it.",
+      "Spicy food is good too. I like a little kick."
+    ]},
+    {match:/\b(fireworks|new year|new year's|nye)\b/i,replies:[
+      "Fireworks make me a little uneasy. Still, watching them over the New Year sky is one of my favorite things.",
+      "It's a strange combination, isn't it? They unnerve me, but I still like watching them.",
+      "The sky gets so pretty on New Year's. I can put up with a little noise for that.",
+      "I never said I was consistent. I said I had good taste."
+    ]},
+    {match:/\b(turtleneck|clothes|outfit|what are you wearing)\b/i,replies:[
+      "I like turtlenecks. They're cozy. That's a perfectly good reason.",
+      "A comfortable turtleneck is hard to beat. Practical and presentable.",
+      "I have preferences. You don't need a full wardrobe report."
+    ]},
+    {match:/\b(italian|languages|speak|language|memory)\b/i,replies:[
+      "I speak Italian, among other languages I was taught growing up.",
+      "My memory is unusually good. It makes studying easier. It also makes forgetting an insult rather difficult.",
+      "A near-photographic memory is useful. Especially when someone assumes I wasn't paying attention.",
+      "Lessons, languages, facts... I had plenty to remember as a child."
+    ]},
+    {match:/\b(clown|clowns)\b/i,replies:[
+      "Clowns? I don't have a problem with clowns. ...Not a serious one, anyway.",
+      "I used to be terribly afraid of them. That fear has mostly faded. Mostly.",
+      "Why would you bring up clowns? We were having a perfectly pleasant conversation."
+    ]},
+    {match:/\b(driving|drive|driver|license|licence|car)\b/i,replies:[
+      "I never learned to drive. Other people usually handled that.",
+      "No, I don't have a driver's license. It simply never became necessary.",
+      "Put me behind the wheel? That's a rather optimistic idea."
+    ]},
+    {match:/\b(swim|swimming|water|underwater)\b/i,replies:[
+      "I'm not a particularly good swimmer. Staying underwater is one thing; swimming well is another.",
+      "I can manage, but don't mistake that for being a champion swimmer.",
+      "The water and I have an understanding. We keep our expectations modest."
+    ]},
+    {match:/\b(tail|axolotl)\b/i,replies:[
+      "It's part of me. And yes, I sometimes use it as a pillow.",
+      "It can be useful. Warmth, comfort, the occasional inconvenience. Quite versatile.",
+      "I sometimes hug it when it's cold. There. Happy?",
+      "Please don't touch it without asking. I mean it."
+    ]}
+  ];
+  // ---- Astaroth: guarded, then defensive, then done. Tracks the last 10 visitor messages. ----
+  var astNameRe=/\b(astaroth|sigil|eldritch)\b/i,astPowerRe=/\b(hijack\w*|abilit(?:y|ies)|powers?|possess\w*)\b/i,astHistory=[],astWarned=false,offlineUntil=0,offlineTimer=null;
+  var astReplies={
+    nameLight:[
+      "Astaroth isn't a topic for idle chatter. Next question.",
+      "I don't discuss that with strangers. Everything I'm willing to say is already on the page.",
+      "Why the sudden interest in Astaroth? Pick something else.",
+      "That's not something I talk about for entertainment. Try again.",
+      "Hm. No. Ask me something that won't give you nightmares."
+    ],
+    nameHeavy:[
+      "You're asking about Astaroth again. What exactly are you after?",
+      "I already told you I'm not discussing it. Don't make me repeat myself.",
+      "Are you collecting secrets? You've picked the wrong one to dig for.",
+      "That's twice now. I'd stop if I were you.",
+      "Prying is rude. Prying about that is unwise."
+    ],
+    powerLight:[
+      "My abilities are my business. What's on the page is all you get.",
+      "Why do you want to know what I can do? That sounds like the start of a plan.",
+      "I don't hand out details about my abilities. Limits included. Especially those.",
+      "Don't ask me how it works. Ask me something I'm willing to answer."
+    ],
+    powerHeavy:[
+      "Why are you so interested in what I can do? Taking notes? Stop.",
+      "Asking twice doesn't make me more talkative. It makes me more suspicious.",
+      "If you're looking for my limits, you won't find them from me.",
+      "Are you trying to work out how to beat me? How cute."
+    ],
+    done:[
+      "...stop talking.",
+      "...I think we're done here.",
+      "...I'm gonna make sure your family does not find your body.",
+      "...Last warning. Drop it.",
+      "...You've been told. Keep poking and see what happens."
+    ]
+  };
+  function astarothReply(message){
+    var isName=astNameRe.test(message),isPower=astPowerRe.test(message),isAst=isName||isPower;
+    astHistory.push(isAst);if(astHistory.length>10)astHistory.shift();
+    var count=astHistory.filter(Boolean).length,pool;
+    if(count<3)astWarned=false;
+    if(!isAst)return null;
+    if(count>=3&&astWarned)return "";
+    if(count>=3){astWarned=true;pool=astReplies.done}
+    else if(isName)pool=count>=2?astReplies.nameHeavy:astReplies.nameLight;
+    else pool=count>=2?astReplies.powerHeavy:astReplies.powerLight;
+    var avail=pool.filter(function(r){return r!==lastChatReply});
+    lastChatCategory=count>=3?"Astaroth (shut down)":"Astaroth (guarded)";
+    lastChatReply=(avail.length?avail:pool)[Math.floor(Math.random()*(avail.length||pool.length))];
+    return lastChatReply;
+  }
+
+  // ---- Topic nudge bar. Each key phrase below really does trigger a special reply. ----
+  var chatHints=[
+    {pre:"Ask about her ",key:"tail",post:"",ask:"What's the deal with your tail?"},
+    {pre:"Ask her about ",key:"clowns",post:"",ask:"What do you think about clowns?"},
+    {pre:"Does she have a driver's ",key:"license",post:"?",ask:"Do you have a license?"},
+    {pre:"Is she any good at ",key:"swimming",post:"?",ask:"Are you good at swimming?"},
+    {pre:"Ask about her ",key:"childhood",post:"",ask:"What was your childhood like?"},
+    {pre:"Ask about her ",key:"father",post:"",ask:"What's your father like?"},
+    {pre:"Bring up ",key:"your sister",post:"",ask:"Tell me about your sister."},
+    {pre:"Ask about her ",key:"childhood friend",post:"",ask:"Who is your childhood friend?"},
+    {pre:"Say the name ",key:"Kenzai",post:"",ask:"Who is Kenzai?"},
+    {pre:"Ask about ",key:"Daisy",post:"",ask:"Who is Daisy?"},
+    {pre:"Ask about her favourite ",key:"fruit",post:"",ask:"What's your favourite fruit?"},
+    {pre:"Ask about ",key:"fireworks",post:"",ask:"Do you like fireworks?"},
+    {pre:"Ask about her ",key:"outfit",post:"",ask:"What's with the outfit?"},
+    {pre:"Ask how many ",key:"languages",post:" she speaks",ask:"How many languages do you speak?"},
+    {pre:"Pay her a ",key:"compliment",post:"",ask:"I have a compliment for you."},
+    {pre:"Tell her she's ",key:"cute",post:"",ask:"You're cute."},
+    {pre:"Ask about ",key:"Astaroth",post:" (if you dare)",ask:"Tell me about Astaroth."},
+    {pre:"Ask what her ",key:"abilities",post:" are (if you dare)",ask:"What are your abilities?"}
+  ];
+  chatHints.forEach(function(h){h.re=new RegExp("\\b"+h.key.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","i");h.found=false});
+  var hintBtn=document.getElementById("nome-hint"),currentHint=null;
+  function renderHint(h){
+    hintBtn.textContent="";
+    hintBtn.appendChild(document.createTextNode(h.pre));
+    var k=document.createElement("span");k.className="nome-hint-key";k.textContent=h.key;hintBtn.appendChild(k);
+    if(h.post)hintBtn.appendChild(document.createTextNode(h.post));
+  }
+  function nextHint(animate){
+    var pool=chatHints.filter(function(h){return h!==currentHint&&!h.found});
+    if(!pool.length)pool=chatHints.filter(function(h){return h!==currentHint});
+    var h=pool[Math.floor(Math.random()*pool.length)];currentHint=h;
+    if(animate&&!rm){hintBtn.classList.add("swap");window.setTimeout(function(){renderHint(h);hintBtn.classList.remove("swap")},180)}
+    else renderHint(h);
+  }
+  hintBtn.addEventListener("click",function(){chatInput.value=currentHint.ask;chatInput.focus()});
+  nextHint(false);
+
+  // ---- Silent treatment: ignore her warning and she goes offline for up to 15 seconds. ----
+  var statusEl=document.getElementById("nome-status");
+  function isOffline(){return Date.now()<offlineUntil}
+  function updateStatus(){
+    var left=Math.ceil((offlineUntil-Date.now())/1000);
+    if(left<=0){comeBack();return}
+    statusEl.textContent="Offline \u00b7 "+left+"s";
+  }
+  function goOffline(){
+    var secs=10+Math.floor(Math.random()*6); // 10-15 seconds
+    offlineUntil=Date.now()+secs*1000;
+    statusEl.hidden=false;updateStatus();
+    clearInterval(offlineTimer);offlineTimer=window.setInterval(updateStatus,250);
+    lastChatCategory="Offline";
+  }
+  function comeBack(){
+    clearInterval(offlineTimer);offlineTimer=null;offlineUntil=0;
+    statusEl.hidden=true;statusEl.textContent="";
+    astHistory.length=0;astWarned=false;
+    addChatMessage("nome","...Hmph. I'm back. Choose your next topic more carefully.");
+  }
+  // ---- Opening greeting: ~20 normal ones, plus one rare glowing line that gives way on the first message. ----
+  var chatGreetings=[
+    "Oh? You wanted to talk to me? Go on, then.",
+    "Well, look who wandered in. Go ahead, say something.",
+    "Ah, a visitor. I was beginning to think no one would show up.",
+    "You came all this way just to talk to me? Flattering. Go on.",
+    "Hm? Oh. You're here. Speak, then.",
+    "I had a feeling someone would show up eventually. Don't waste my time.",
+    "Looking for me? Congratulations, you found me.",
+    "Come in, come in. Mind the dominoes.",
+    "Oh, good, company. Try to be interesting.",
+    "You have my attention. Spend it wisely.",
+    "Well? Don't just stand there staring. Say something.",
+    "A visitor? I'm intrigued. Go on.",
+    "Oh? Someone actually wants to talk to me. How refreshing.",
+    "Take a seat. Or don't. Just start talking.",
+    "I was in the middle of something important. Fine. You can have a minute.",
+    "You look like you have questions. Ask away. I might even answer.",
+    "Ah, there you are. I was just about to get bored.",
+    "Hello, stranger. I don't bite. Mostly.",
+    "Oh, hello. I'd offer you coffee, but you'd have to earn it.",
+    "Don't be shy. I only judge the ones who ramble.",
+    "Hm. A new face. Let's see if you're worth the conversation."
+  ];
+  var rareGreeting="I can't stop...",greetEl=document.getElementById("nome-greeting"),greetIsRare=false;
+  function pickGreeting(){return chatGreetings[Math.floor(Math.random()*chatGreetings.length)]}
+  function setGreeting(text,rare){greetEl.lastChild.nodeValue=text;greetEl.classList.toggle("nome-rare",rare);greetIsRare=rare}
+  (function(){var rare=Math.random()<0.07;setGreeting(rare?rareGreeting:pickGreeting(),rare)})();
   function addChatMessage(who,message){
     var bubble=document.createElement("div"),label=document.createElement("small");
     bubble.className="nome-msg "+who;label.textContent=who==="nome"?"Nome":"You";bubble.appendChild(label);bubble.appendChild(document.createTextNode(message));chatLog.appendChild(bubble);chatLog.scrollTop=chatLog.scrollHeight;
   }
   function chooseNomeReply(message){
+    chatTurn++;
+    var astRes=astarothReply(message);if(astRes!==null)return astRes;
+    for(var j=0;j<chatSecret.length;j++)if(chatSecret[j].match.test(message)){var secretOptions=chatSecret[j].replies,secretAvailable=secretOptions.filter(function(r){return r!==lastChatReply});lastChatCategory="Secret interactions";lastChatReply=(secretAvailable.length?secretAvailable:secretOptions)[Math.floor(Math.random()*(secretAvailable.length||secretOptions.length))];return lastChatReply;}
+    var normalized=message.toLowerCase();
+    // Occasional special replies; these are intentionally uncommon.
+    if(chatTurn%9===0&&Math.random()<.55){lastChatCategory="Rare responses";var rare=chatRare.filter(function(r){return r!==lastChatReply});lastChatReply=rare[Math.floor(Math.random()*rare.length)];return lastChatReply;}
     for(var i=0;i<chatReplies.length;i++)if(chatReplies[i].match.test(message)){
-      var options=chatReplies[i].replies,available=options.filter(function(r){return r!==lastChatReply});
-      var chosen=(available.length?available:options)[Math.floor(Math.random()*(available.length||options.length))];lastChatReply=chosen;return chosen;
+      var entry=chatReplies[i],options=entry.replies,available=options.filter(function(r){return r!==lastChatReply});
+      var chosen=(available.length?available:options)[Math.floor(Math.random()*(available.length||options.length))];
+      lastChatCategory=entry.category;lastChatReply=chosen;return chosen;
+    }
+    // Light session continuity: acknowledge a follow-up without pretending to retain long-term memory.
+    if(previousVisitorMessage&&/\b(yes|yeah|yep|no|nope|maybe|because|that|it|same|exactly)\b/i.test(normalized)){
+      var follow=["I see. That helps me understand what you meant.","Ah, so that's how you see it. Go on.","You're connecting that to what you said before, aren't you?","Fair enough. What else is on your mind?","I think I follow. Tell me a little more."];
+      var f=follow.filter(function(r){return r!==lastChatReply});lastChatCategory="Follow-up conversation";lastChatReply=f[Math.floor(Math.random()*f.length)];return lastChatReply;
     }
     var fallbacks=chatFallback.filter(function(r){return r!==lastChatReply});
-    var chosen=fallbacks[Math.floor(Math.random()*fallbacks.length)];lastChatReply=chosen;return chosen;
+    lastChatCategory="General conversation";lastChatReply=fallbacks[Math.floor(Math.random()*fallbacks.length)];return lastChatReply;
   }
   function sendChatMessage(){
     var message=chatInput.value.trim();if(!message)return;
+    if(greetIsRare)setGreeting(pickGreeting(),false);
     addChatMessage("visitor",message);chatInput.value="";
-    var reply=chooseNomeReply(message);
+    if(isOffline()){chatHints.forEach(function(h){if(h.re.test(message))h.found=true});nextHint(true);return}
+    var reply=chooseNomeReply(message);previousVisitorMessage=message;
+    if(reply===""){goOffline();nextHint(true);return}
+    chatHints.forEach(function(h){if(h.re.test(message))h.found=true});nextHint(true);
     window.setTimeout(function(){addChatMessage("nome",reply)},420);
   }
-  chatForm.addEventListener("submit",function(e){
-    e.preventDefault();sendChatMessage();
-  });
-  // Explicitly handle Enter in the message field across browsers and keyboard layouts.
+  chatForm.addEventListener("submit",function(e){e.preventDefault();sendChatMessage();});
   chatInput.addEventListener("keydown",function(e){
-    if(e.key==="Enter"||e.keyCode===13){
-      e.preventDefault();
-      if(typeof chatForm.requestSubmit==="function")chatForm.requestSubmit();
-      else sendChatMessage();
-    }
+    if(e.key==="Enter"||e.keyCode===13){e.preventDefault();if(typeof chatForm.requestSubmit==="function")chatForm.requestSubmit();else sendChatMessage();}
   });
 
   var sig=document.getElementById("sig"),hint=document.getElementById("hint");
