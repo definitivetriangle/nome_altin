@@ -80,9 +80,15 @@ h3.sg:hover{font-size:1.32rem;letter-spacing:.12em}
 .more>div{overflow:hidden}
 .more .mi{border-left:2px solid var(--blood);padding:.2rem 0 .4rem 1rem;margin:0 0 .8rem;color:var(--dim);font-size:.97rem}
 .more .mi p{margin:0 0 .7rem;max-width:62ch}
-.bar{height:6px;background:#241015;position:relative}
-.bar i{position:absolute;inset:0 auto 0 0;width:0;background:var(--blood);transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
-.stat.big .bar i{background:var(--sigil);box-shadow:0 0 14px var(--sigil)}
+.bar{height:6px;background:#48232d;position:relative;overflow:hidden;border-radius:2px;box-shadow:inset 0 0 3px rgba(0,0,0,.65)}
+.bar i{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,#a83249,#f0788c);box-shadow:0 0 8px rgba(240,120,140,.55);transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
+.stat.big .bar i{background:linear-gradient(90deg,#e3243b,#ff8b9b);box-shadow:0 0 14px var(--sigil)}
+/* Emotional Intelligence: a smooth, enchanted crimson glint */
+.stat.enchanted .bar{height:8px;background:#290b12;box-shadow:0 0 10px rgba(255,35,65,.24),inset 0 0 4px rgba(0,0,0,.68)}
+.stat.enchanted .bar i{overflow:hidden;background:linear-gradient(90deg,#a90925 0%,#ed1838 25%,#ff5264 48%,#d90c31 72%,#ff344e 88%,#a90925 100%);background-size:200% 100%;animation:enchantFlow 5s ease-in-out infinite alternate;box-shadow:0 0 7px rgba(255,45,75,.72),0 0 15px rgba(227,20,55,.55),0 0 24px rgba(255,65,90,.22)}
+.stat.enchanted .bar i::after{content:"";position:absolute;inset:-5px -35%;background:linear-gradient(112deg,transparent 27%,rgba(255,210,216,.06) 39%,rgba(255,238,240,.9) 48%,rgba(255,145,160,.42) 53%,rgba(255,220,225,.08) 61%,transparent 74%);transform:translateX(-75%);animation:enchantGlint 4.2s cubic-bezier(.45,0,.35,1) infinite;filter:blur(.6px)}
+@keyframes enchantFlow{from{background-position:0 0}to{background-position:200% 0}}
+@keyframes enchantGlint{0%,18%{transform:translateX(-75%);opacity:0}38%{opacity:.78}68%,100%{transform:translateX(75%);opacity:0}}
 .stat span.n{text-align:right;font-variant-numeric:tabular-nums}
 .stat small{display:block;color:var(--dim);grid-column:2/4;margin-top:-.5rem;font-size:.88rem;line-height:1.4}
 
@@ -214,6 +220,26 @@ footer b{display:block;font:400 2rem var(--display);color:var(--bone);font-style
   .stat{grid-template-columns:1fr 3rem}.stat .bar{grid-column:1/3}.stat small{grid-column:1/3;margin-top:0}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+
+/* Contact Nome chat */
+.nome-chat{max-width:680px;margin:2.2rem 0 0;border:1px solid #4a1722;background:linear-gradient(145deg,#16070b,#080204 72%);box-shadow:0 0 24px rgba(122,15,30,.18);position:relative}
+.nome-chat::before{content:"";position:absolute;inset:0;pointer-events:none;border-top:2px solid #8d1a2c;opacity:.75}
+.nome-chat-head{padding:1rem 1.2rem .8rem;border-bottom:1px solid #35131b;display:flex;align-items:baseline;justify-content:space-between;gap:1rem}
+.nome-chat-head h3{font:400 1.8rem var(--display);color:var(--bone);margin:0}
+.nome-chat-head span{font-size:.78rem;color:var(--dim);font-style:italic}
+.nome-chat-log{height:260px;overflow-y:auto;padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.8rem;scroll-behavior:smooth}
+.nome-msg{max-width:88%;padding:.65rem .85rem;border:1px solid #3a1720;background:#12060a;color:var(--bone);line-height:1.5;overflow-wrap:anywhere;animation:chatIn .25s ease-out both}
+.nome-msg.nome{align-self:flex-start;border-left:2px solid var(--sigil)}
+.nome-msg.visitor{align-self:flex-end;background:#260b13;border-color:#682032;border-right:2px solid var(--gill)}
+.nome-msg small{display:block;color:var(--dim);font-size:.72rem;letter-spacing:.06em;margin-bottom:.15rem}
+.nome-chat-form{display:flex;gap:.6rem;padding:.8rem;border-top:1px solid #35131b}
+.nome-chat-form input{min-width:0;flex:1;background:#080305;border:1px solid #54202c;color:var(--bone);font:inherit;padding:.65rem .8rem;border-radius:0}
+.nome-chat-form input::placeholder{color:#806d70}
+.nome-chat-form button{white-space:nowrap}
+.nome-chat-note{padding:0 .9rem .7rem;color:var(--dim);font-size:.78rem;font-style:italic}
+@keyframes chatIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:520px){.nome-chat-head{align-items:flex-start;flex-direction:column;gap:.1rem}.nome-chat-log{height:240px}.nome-chat-form{gap:.4rem;padding:.65rem}.nome-chat-form button{padding:.55rem .75rem}}
+
 </style>
 </head>
 <body>
@@ -389,6 +415,19 @@ footer b{display:block;font:400 2rem var(--display);color:var(--bone);font-style
   <details><summary>What if her body is hurt while she hijacks?</summary><p>She won’t feel it. The pain arrives all at once when she returns to her body.</p></details>
   <details><summary>Can she use a hijacked body’s wings or other foreign limbs?</summary><p>No. She’d have to learn how to use new limbs first.</p></details>
   <details><summary>Does she keep the hijacked person’s memories?</summary><p>Somewhat. She can reach about the previous 45 to 60 minutes. Beyond that it’s too foggy.</p></details>
+
+  <div class="nome-chat" id="nome-chat">
+    <div class="nome-chat-head"><h3>Contact Nome</h3><span>A little conversation, if you insist.</span></div>
+    <div class="nome-chat-log" id="nome-chat-log" role="log" aria-live="polite" aria-relevant="additions">
+      <div class="nome-msg nome"><small>Nome</small>Oh? You wanted to talk to me? Go on, then.</div>
+    </div>
+    <form class="nome-chat-form" id="nome-chat-form">
+      <label class="sr" for="nome-chat-input">Your message to Nome</label>
+      <input id="nome-chat-input" type="text" maxlength="400" autocomplete="off" placeholder="Write something to Nome…" required>
+      <button class="b" type="submit">Send</button>
+    </form>
+    <div class="nome-chat-note">Nome’s replies are selected from a collection of written responses.</div>
+  </div>
 </div></section>
 </main>
 
@@ -410,7 +449,8 @@ footer b{display:block;font:400 2rem var(--display);color:var(--bone);font-style
   stats.forEach(function(s,i){
     var d=document.createElement("div");
     var big=s[1]>10?" big":"";
-    d.innerHTML='<button class="stat'+big+'" type="button" aria-expanded="false" aria-controls="m'+i+'"><span>'+s[0]+'</span><div class="bar"><i></i></div><span class="n">'+s[1]+'/10</span></button><div class="more" id="m'+i+'"><div><div class="mi"><p>'+s[2].join('</p><p>')+'</p></div></div></div>';
+    var enchanted=s[0]==="Emotional intelligence"?" enchanted":"";
+    d.innerHTML='<button class="stat'+big+enchanted+'" type="button" aria-expanded="false" aria-controls="m'+i+'"><span>'+s[0]+'</span><div class="bar"><i></i></div><span class="n">'+s[1]+'/10</span></button><div class="more" id="m'+i+'"><div><div class="mi"><p>'+s[2].join('</p><p>')+'</p></div></div></div>';
     root.appendChild(d);
     var btn=d.querySelector("button"),more=d.querySelector(".more");
     btn.addEventListener("click",function(){var o=more.classList.toggle("open");btn.setAttribute("aria-expanded",o)});
@@ -504,6 +544,54 @@ footer b{display:block;font:400 2rem var(--display);color:var(--bone);font-style
   }
   show();document.getElementById("nq").addEventListener("click",swapQuote);
 
+
+  // Lightweight, local keyword-based conversation with Nome (no external AI service).
+  var chatForm=document.getElementById("nome-chat-form"),chatInput=document.getElementById("nome-chat-input"),chatLog=document.getElementById("nome-chat-log"),lastChatReply="";
+  var chatReplies=[
+    {match:/\b(hi|hello|hey|greetings|good morning|good evening)\b/i,replies:["Well, hello there. What brings you over?","Oh, a visitor. How interesting. What’s on your mind?","Hello. You have my attention… for now."]},
+    {match:/\b(who are you|your name|what are you)\b/i,replies:["Nome Altin. Surely you could have figured that out from the page.","I’m Nome. And you are? No, never mind. I’ll let you keep your mystery."]},
+    {match:/\b(coffee|drink|tea)\b/i,replies:["Coffee is a reliable companion. Especially when the morning refuses to cooperate.","I do enjoy coffee. Are you offering, or just making conversation?"]},
+    {match:/\b(how are you|how're you|doing)\b/i,replies:["Quite alright. A little bored, perhaps. You can fix that by being interesting.","I’m doing well enough. How considerate of you to ask."]},
+    {match:/\b(what are you doing|doing right now)\b/i,replies:["Enjoying a quiet moment. They’re rather rare, you know.","Talking to you, apparently. Let’s see where this goes."]},
+    {match:/\b(like|love|favorite|favourite)\b.*\b(food|spicy|eat|meal)\b|\b(food|spicy food)\b/i,replies:["I have a weakness for spicy food. The hotter, the better.","Something with a little heat is always welcome. Bland food is such a tragedy."]},
+    {match:/\b(tail)\b/i,replies:["What about my tail? Be careful where you put your hands.","It’s part of me. And yes, I notice when someone stares at it."]},
+    {match:/\b(sigil|astaroth|hijack|abilities)\b/i,replies:["Curious about the sigil? It has its uses, though I’m not going to explain every little secret.","Astaroth’s Sigil is rather useful. That’s all you need to know for now."]},
+    {match:/\b(sad|upset|bad day|lonely| stressed|stress)\b/i,replies:["Hm. I may tease, but I can listen. Want to tell me what happened?","That sounds like a rough day. Take your time; I’m listening."]},
+    {match:/\b(thank you|thanks)\b/i,replies:["You’re welcome. Don’t make a habit of being so polite.","Of course. It was hardly a burden."]},
+    {match:/\b(bye|goodbye|see you|gotta go)\b/i,replies:["Leaving already? Very well. Try not to be boring out there.","Until next time. I’ll be here… most likely."]},
+    {match:/\b(joke|funny|laugh)\b/i,replies:["I could tell you a joke, but I’d rather hear one from you. Entertain me.","You want me to be funny? How demanding. I’ll consider it."]}
+  ];
+  var chatFallback=["That’s an interesting thing to say. Go on…","I’m not quite sure what you mean, but I’m listening.","Perhaps. What makes you say that?","You’ll have to give me a little more to work with.","Hm. Tell me more.","I see. And what do you expect me to say to that?"];
+  function addChatMessage(who,message){
+    var bubble=document.createElement("div"),label=document.createElement("small");
+    bubble.className="nome-msg "+who;label.textContent=who==="nome"?"Nome":"You";bubble.appendChild(label);bubble.appendChild(document.createTextNode(message));chatLog.appendChild(bubble);chatLog.scrollTop=chatLog.scrollHeight;
+  }
+  function chooseNomeReply(message){
+    for(var i=0;i<chatReplies.length;i++)if(chatReplies[i].match.test(message)){
+      var options=chatReplies[i].replies,available=options.filter(function(r){return r!==lastChatReply});
+      var chosen=(available.length?available:options)[Math.floor(Math.random()*(available.length||options.length))];lastChatReply=chosen;return chosen;
+    }
+    var fallbacks=chatFallback.filter(function(r){return r!==lastChatReply});
+    var chosen=fallbacks[Math.floor(Math.random()*fallbacks.length)];lastChatReply=chosen;return chosen;
+  }
+  function sendChatMessage(){
+    var message=chatInput.value.trim();if(!message)return;
+    addChatMessage("visitor",message);chatInput.value="";
+    var reply=chooseNomeReply(message);
+    window.setTimeout(function(){addChatMessage("nome",reply)},420);
+  }
+  chatForm.addEventListener("submit",function(e){
+    e.preventDefault();sendChatMessage();
+  });
+  // Explicitly handle Enter in the message field across browsers and keyboard layouts.
+  chatInput.addEventListener("keydown",function(e){
+    if(e.key==="Enter"||e.keyCode===13){
+      e.preventDefault();
+      if(typeof chatForm.requestSubmit==="function")chatForm.requestSubmit();
+      else sendChatMessage();
+    }
+  });
+
   var sig=document.getElementById("sig"),hint=document.getElementById("hint");
   sig.addEventListener("click",function(){
     var on=document.body.classList.toggle("on");
@@ -539,7 +627,15 @@ footer b{display:block;font:400 2rem var(--display);color:var(--bone);font-style
       e.preventDefault();
       if(an)an.cancel();
       var h0=d.offsetHeight,opening=!d.open;
-      if(opening)d.open=true;
+      if(opening){
+        d.open=true;
+        // Replay the reveal animation every time any dropdown opens.
+        d.querySelectorAll("p").forEach(function(p){
+          p.style.animation="none";
+          void p.offsetWidth;
+          p.style.animation="";
+        });
+      }
       var bw=d.offsetHeight-d.clientHeight,h1=opening?d.scrollHeight+bw:sm.offsetHeight+bw;
       an=d.animate({height:[h0+"px",h1+"px"]},{duration:380,easing:"cubic-bezier(.2,.8,.2,1)"});
       an.onfinish=function(){if(!opening)d.open=false;an=null};
